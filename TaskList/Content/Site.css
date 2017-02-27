@@ -1,0 +1,78 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: #d9edf7;
+}
+
+.btn-default.success {
+    border: 2px solid #4cae4c;
+}
+
+.btn-default.info {
+    border: 2px solid #5bc0de;
+}
+
+.btn-default.danger {
+    border: 2px solid #d9534f;
+}
+
+.btn-default.success:hover {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.btn-default.info:hover {
+    background-color: #5bc0de;
+    color: white;
+}
+
+.btn-default.danger:hover {
+    background-color: #d9534f;
+    color: white;
+}
+
+.modal-content {
+    width: 600px !important;
+    margin: 30px auto !important;
+}
+
+/* Sticky Footer */
+html, body {
+    margin: 0;
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.wrapper {
+    padding: 20px;
+    height: auto;
+}
+
+footer {
+    display: table-row;
+    height: 1px;
+}

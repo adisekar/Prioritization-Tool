@@ -1,0 +1,45 @@
+﻿@model IEnumerable<TaskList.Models.QuestionViewModel>
+
+@{
+    ViewBag.Title = "QuestionsIndex";
+}
+
+<h2>Questions Index</h2>
+
+<p>
+    @Html.ActionLink("Create New Question", "CreateQuestion", null, new { @class = "btn btn-success" })
+</p>
+
+<div class="panel panel-default">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.QuestionName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Category)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.QuestionName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "EditQuestion", new { id = item.QuestionId }, new { @class = "btn btn-info" })
+
+                        @Html.ActionLink("Delete", "DeleteQuestion", new { id = item.QuestionId }, new { @class = "btn btn-danger" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

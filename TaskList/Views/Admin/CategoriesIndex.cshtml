@@ -1,0 +1,39 @@
+﻿@model IEnumerable<TaskList.Models.CategoryViewModel>
+
+@{
+    ViewBag.Title = "CategoriesIndex";
+}
+
+<h2>Categories Index</h2>
+
+<p>
+    @Html.ActionLink("Create New Category", "CreateCategory", null, new { @class = "btn btn-success" })
+</p>
+
+<div class="panel panel-default">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CategoryName)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CategoryName)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "EditCategory", new { id = item.CategoryId }, new { @class = "btn btn-info" })
+
+                        @Html.ActionLink("Delete", "DeleteCategory", new { id = item.CategoryId }, new { @class = "btn btn-danger" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

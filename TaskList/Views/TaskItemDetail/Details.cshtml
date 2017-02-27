@@ -1,0 +1,106 @@
+﻿@model TaskList.Models.TaskItemViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+<br />
+<div class="form-group">
+    <div class="alert alert-info" role="alert">
+        <div class="col-md-8 lead">
+            @Model.Task.TaskName <span> - Details</span>
+        </div>
+        <span class="lead">
+            Total Score:
+            <span id="totalScore"><strong>@Model.Task.Score</strong></span>
+        </span>
+    </div>
+
+    @{
+        string isCreated = Request.QueryString["created"];
+        if (isCreated == "True")
+        {
+            <div class="alert alert-success">
+                <a href="#" class="close" data-dismiss="alert">×</a>
+                <h4>Success. Task Detail has been added !</h4>
+            </div>
+        }
+    }
+
+
+</div>
+@if (Model.Categories.Count > 0)
+{
+    <div>
+        @foreach (var item in Model.Categories)
+        {
+            <dl class="dl-horizontal">
+                <dt><span class="lead">Category:</span></dt>
+                <dd><span class="lead text-primary">@item.Category.CategoryName </span></dd>
+            </dl>
+
+            foreach (var innerItem in item.QuestionsAnswers)
+            {
+                <dl class="dl-horizontal col-md-8">
+                    <dt>Question:</dt>
+                    <dd>@innerItem.Question.QuestionName</dd>
+                </dl>
+
+                <dl class="dl-horizontal col-md-4">
+                    <dt>Multiplier:</dt>
+                    <dd>@innerItem.Multiplier.MultiplierValue</dd>
+                </dl>
+                <span class="clearfix"></span>
+
+                <dl class="dl-horizontal col-md-8">
+                    <dt>Answer:</dt>
+                    <dd>@innerItem.Answer.AnswerName</dd>
+                </dl>
+
+                <dl class="dl-horizontal col-md-4">
+                    <dt>Score:</dt>
+                    <dd><strong>@innerItem.Score</strong></dd>
+                </dl>
+
+                <dl class="dl-horizontal col-md-8">
+                    <dt>Weight:</dt>
+                    <dd>@innerItem.Answer.Weight.WeightValue</dd>
+                </dl>
+                <span class="clearfix"></span>
+                <hr />
+            }
+        }
+    </div>
+    <hr />
+    <span class="col-md-6">
+        @Html.ActionLink("Edit Task Item", "Edit", "TaskItemDetail", new { id = Model.Task.TaskId }, new { @class = "btn btn-success btn-lg btn-block" })
+    </span>
+    <span class="col-md-6">
+        @Html.ActionLink("Back to List", "Index", "Home", null, new { @class = "btn btn-default btn-lg btn-block" })
+    </span>
+    <br />
+}
+else
+{
+    <div>
+        <h4>You have not created details for this task yet.</h4>
+    </div>
+    <br />
+    <span class="col-md-6">
+        @Html.ActionLink("Create Task Item", "Create", "TaskItemDetail", new { id = Model.Task.TaskId }, new { @class = "btn btn-success btn-lg btn-block" })
+    </span>    <span class="col-md-6">
+        @Html.ActionLink("Back to List", "Index", "Home", null, new { @class = "btn btn-default btn-lg btn-block" })
+    </span>
+    <br />
+}
+
+@section Scripts{
+    <script type="text/JavaScript">
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert-success").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000);
+        });
+    </script>
+}

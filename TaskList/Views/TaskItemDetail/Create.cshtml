@@ -1,0 +1,233 @@
+﻿@model TaskList.Models.TaskItemLookupViewModel
+
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h3>Create Task Item Detail</h3>
+@using (Html.BeginForm("Create", "TaskItemDetail", FormMethod.Post, new { id = "createTaskItemDetailForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            <div class="alert alert-info" role="alert">
+                <div class="col-md-8 lead">
+                    @Model.Task.TaskName
+                </div>
+                <span class="lead">
+                    Total Score:
+                    <span id="totalScore"><strong>@Model.TotalScore</strong></span>
+                </span>
+            </div>
+        </div>
+
+        @{
+    var questionAnswersList = Model.QuestionAnswers;
+    var multiplierValues = Model.MultiplierValues;
+        }
+
+        @for (int i = 0; i < Model.CategoryQuestions.Count; i++)
+        {
+            var category = Model.CategoryQuestions[i].Category;
+            var questions = Model.CategoryQuestions[i].Questions;
+
+
+            <dl class="dl-horizontal">
+                <dt><span class="lead">Category:</span></dt>
+                <dd><span class="lead text-primary">@category.CategoryName</span></dd>
+            </dl>
+
+            for (int j = 0; j < questions.Count; j++)
+            {
+                var question = questions[j];
+                var questionAnswers = @questionAnswersList.Where(q => q.Question.QuestionId == question.QuestionId).FirstOrDefault();
+
+                <dl class="dl-horizontal col-md-6">
+                    <dt>Question:</dt>
+                    <dd>@question.QuestionName</dd>
+                </dl>
+
+                <dl class="dl-horizontal col-md-6">
+                    <dt>Multiplier:</dt>
+                    <dd>@Html.DropDownList("multiplierDD" + i + j, new SelectList(multiplierValues, "MultiplierId", "MultiplierValue"), new { @onchange = "setScore(this, 'multiplier');", @class = "form-control" })</dd>
+                </dl>
+                <span class="clearfix"></span>
+
+                var answers = questionAnswers.Answers;
+                <dl class="dl-horizontal col-md-6">
+                    <dt>Select an answer:</dt>
+                    <dd>@Html.DropDownList("answersDD" + i + j, new SelectList(answers, "AnswerId", "AnswerName"), new { @onchange = "setWeightValue(this)", @class = "form-control" })</dd>
+                </dl>
+
+                <dl class="dl-horizontal col-md-6">
+                    <dt>Score:</dt>
+                    <dd><span id="@("score" + i+j)"><strong>@questionAnswers.Score</strong></span></dd>
+                </dl>
+                <span class="clearfix"></span>
+                <dl class="dl-horizontal col-md-6">
+                    <dt>Weight:</dt>
+                    <dd><span id="@("weight" + i+j)">@answers[0].Weight.WeightValue</span></dd>
+                </dl>
+                <span class="clearfix"></span>
+                <hr />
+            }
+        }
+        <hr />
+
+        <span class="col-md-6">
+            <button type="submit" id="createItemDetail" class="btn btn-success btn-lg btn-block">
+                Create Task Item Detail
+            </button>
+
+        </span>
+        <span class="col-md-6">
+            @Html.ActionLink("Back to Item", "Details", "TaskItemDetail", new { id = Model.Task.TaskId }, new { @class = "btn btn-default btn-lg btn-block" })
+        </span>
+        <br /><br />
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            $('#createTaskItemDetailForm').submit(function (e) {
+                e.preventDefault();
+
+                var taskItemLookupViewModel = @Html.Raw(Json.Encode(Model));
+                var taskItemModel = {};
+                taskItemModel.taskId = taskItemLookupViewModel.Task.TaskId;
+                taskItemModel.totalScore = $('#totalScore').text();
+                taskItemModel.categories = [];
+
+                if(taskItemLookupViewModel.CategoryQuestions){
+                    $.each(taskItemLookupViewModel.CategoryQuestions, function(i, item){
+
+                        var category = item.Category;
+                        var questions = item.Questions;
+                        taskItemModel.categories[i] = { categoryId : category.CategoryId };
+                        taskItemModel.categories[i].questionAnswerDetails = [];
+
+                        $.each(questions, function(j, innerItem){
+                            var question = innerItem;
+
+                            var idPosition = "" + i + j;
+                            var weightSpanElement = $('#weight' + idPosition);
+                            var weight = weightSpanElement.text();
+
+                            var scoreSpanElement = $('#score' + idPosition);
+                            var score = scoreSpanElement.text();
+
+                            var answerDD = $('#answersDD' + idPosition).val();
+                            var answer = Number(answerDD);
+
+                            var multiplierDD = $('#multiplierDD' + idPosition).val();
+                            var multiplier = Number(multiplierDD);
+
+                            var questionAnswerDetailObj = { questionId : innerItem.QuestionId, answerId : answer, multiplierId : multiplier, weightValue : weight, score : score }
+                            taskItemModel.categories[i].questionAnswerDetails[j] = questionAnswerDetailObj;
+                        });
+                    });
+                }
+                //console.log(taskItemModel);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/TaskItemDetail/Create",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(taskItemModel),
+                    success: function (data) {
+                        if(data.message == "Success")
+                        {
+                            window.location.href = data.Url;
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("Something went wrong. Try again !");
+                    }
+                });
+            });
+            // Attach Handlers here
+            // Dopdown list answers handler already attached onchange on dropdown, so no need to attach here
+        });
+
+        function setWeightValue(selectedAnswersDD) {
+            var answersDDId = selectedAnswersDD.id;
+            var idPosition = answersDDId.substr(answersDDId.length - 2);
+
+            var answerId = selectedAnswersDD.options[selectedAnswersDD.selectedIndex].value;
+            var questionAnswers = @Html.Raw(Json.Encode(Model.QuestionAnswers));
+
+            var newWeightValue = null;
+            $.each(questionAnswers, function(i, item)
+            {
+                var flag = true;
+                $.each(item.Answers, function(j, innerItem)
+                {
+                    if(innerItem.AnswerId == answerId)
+                    {
+                        newWeightValue = innerItem.Weight;
+                        // To break out of outer each loop, after we find a match
+                        flag = false;
+                        return false;
+                    }
+                });
+                return flag;
+            });
+
+            var weightSpanElement = $('#weight' + idPosition);
+            weightSpanElement.text(newWeightValue.WeightValue);
+
+            setScore(weightSpanElement, 'weight');
+        }
+
+        function setScore(element, name) {
+            var elementId;
+            if(name == 'multiplier'){
+                elementId = element.id;
+            }
+            else{
+                elementId = element.attr('id');
+            }
+
+            var idPosition = elementId.substr(elementId.length - 2);
+
+            var scoreSpanElement = $('#score' + idPosition);
+            var oldScore = scoreSpanElement.text();
+
+            var weightSpanElement = $('#weight' + idPosition);
+            var weightValue = Number(weightSpanElement.text());
+
+            var selectedMultiplierValue;
+            if(name == 'multiplier'){
+                selectedMultiplierValue = element.options[element.selectedIndex].text;
+            }
+            else{
+                var multiplierDD = $('#multiplierDD' + idPosition);
+                selectedMultiplierValue = Number(multiplierDD.find('option:selected').text());
+            }
+
+            var score = weightValue * selectedMultiplierValue;
+            scoreSpanElement.text(score);
+
+            updateTotalScore(score, oldScore);
+        }
+
+        function updateTotalScore(score, oldScore){
+            var totalScoreElement = $('#totalScore');
+            var currentTotalScore = Number(totalScoreElement.text());
+
+            var newTotalScore = (currentTotalScore - oldScore) + score;
+            $('#totalScore').text(newTotalScore);
+        }
+
+    </script>
+}
+
+

@@ -1,0 +1,107 @@
+﻿@model TaskList.Models.TaskViewModel
+<div class="modal-body">
+    <br />
+    <div class="form-group">
+        <div class="alert alert-info" role="alert">
+            <div class="col-md-8 lead">
+                @Model.TaskName <span> - Details</span>
+            </div>
+            <span class="lead">
+                Total Score:
+                <span id="totalScore"><strong>@Model.Score</strong></span>
+            </span>
+        </div>
+    </div>
+    <div>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.TaskName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.TaskName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.TaskDescription)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.TaskDescription)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.DateCreated)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.DateCreated)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Score)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Score)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.StatusName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.StatusName)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.CreatedBy)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.ModifiedBy)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.ModifiedBy)
+            </dd>
+        </dl>
+        @{
+            if (Model.Attachments.Count > 0)
+            {
+                @Html.Label("Attachments", new { @class = "control-label lead col-md-3" })
+
+                <ul class="col-md-9 list-unstyled">
+                    @foreach (var file in Model.Attachments)
+                    {
+                        if (file.FileExtension == ".jpg" || file.FileExtension == ".png" || file.FileExtension == ".gif" || file.FileExtension == ".bmp")
+                        {
+                            <li>
+                                <a href="@Url.Content(file.FilePath)" target="_blank"><img src="@Url.Content(file.FilePath) " alt="@file.FileName" height=" 100" width="100"></a>
+                            </li>
+                            <br />
+                        }
+                        else
+                        {
+                            <li>
+                                <a href="@Url.Content(file.FilePath)" target="_blank">@Url.Content(file.FilePath)</a>
+                                <br />
+                            </li>
+                        }
+                        <br />
+                    }
+                </ul>
+            }
+        }
+    </div>
+    <p>
+        @Html.ActionLink("View Task Item Details", "Details", "TaskItemDetail", new { id = Model.TaskId }, new { @class = "btn btn-success", id = "taskItemDetailBtnModal" })
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </p>
+
+
+</div>

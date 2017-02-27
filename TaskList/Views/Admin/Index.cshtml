@@ -1,0 +1,221 @@
+﻿@model IPagedList<TaskList.Models.TaskViewModel>
+@{
+    ViewBag.Title = "Index";
+}
+<div class="page-header">
+    <h3>Admin Dashboard</h3>
+</div>
+
+@if (Model.Count() > 0)
+{
+    <div class="alert alert-danger" role="alert">All Pending Tasks needing approval</div>
+}
+else
+{
+    <div class="alert alert-success" role="alert">No Pending Tasks needing approval</div>
+}
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    @*<div class="panel-heading">Task List - Approve / Reject</div>*@
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().TaskName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().Score)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().Priority)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().StatusName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().DateCreated)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TaskName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Score)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Priority)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StatusName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateCreated)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Details", "Details", "Task", new { id = item.TaskId }, new { @class = "btn btn-primary" })
+
+                        @Html.ActionLink("Approve", "Approve", "Admin", null, new { id = "approveBtn" + item.TaskId, @class = "btn btn-success", data_id = item.TaskId })
+
+                        @Html.ActionLink("Reject", "Reject", "Admin", null, new { @class = "btn btn-danger", id = "rejectBtn" + item.TaskId, data_id = item.TaskId })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="pagedList">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), PagedListRenderOptions.MinimalWithItemCountText)
+</div>
+<hr />
+<h3>Choose an Action</h3>
+<br />
+<div class="col-md-3">
+    <div class="panel panel-primary text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title">Categories</h3>
+        </div>
+        <div class="panel-body">
+            @Html.ActionLink("Categories Index", "CategoriesIndex", "Admin", null, new { @class = "btn btn-success btn-large" }) <br /> <br />
+            @Html.ActionLink("Add Category", "Add", "Catgory", null, new { @class = "btn btn-primary btn-large" }) <br /> <br />
+            @Html.ActionLink("Edit Category", "Add", "Catgory", null, new { @class = "btn btn-info btn-large" }) <br /> <br />
+            @Html.ActionLink("Delete Category", "Add", "Catgory", new { @class = "btn btn-danger btn-large" }) <br />
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3 col-md-offset-1">
+    <div class="panel panel-primary text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title">Questions</h3>
+        </div>
+        <div class="panel-body">
+            @Html.ActionLink("Questions Index", "QuestionsIndex", "Admin", null, new { @class = "btn btn-success btn-large" }) <br /> <br />
+            @Html.ActionLink("Add Question", "CreateQuestion", "Admin", null, new { @class = "btn btn-primary btn-large" }) <br /> <br />
+            @Html.ActionLink("Edit Question", "EditQuestion", "Admin", null, new { @class = "btn btn-info btn-large" }) <br /> <br />
+            @Html.ActionLink("Delete Question", "DeleteQuestion", "Admin", new { @class = "btn btn-danger btn-large" }) <br />
+        </div>
+    </div>
+</div>
+<div class="col-md-3 col-md-offset-1">
+    <div class="panel panel-primary text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title">Answers</h3>
+        </div>
+        <div class="panel-body">
+            @Html.ActionLink("Answers Index", "AnswersIndex", "Admin", null, new { @class = "btn btn-success btn-large" }) <br /> <br />
+            @Html.ActionLink("Add Answer", "CreateAnswer", "Admin", null, new { @class = "btn btn-primary btn-large" }) <br /> <br />
+            @Html.ActionLink("Edit Answer", "EditAnswer", "Admin", null, new { @class = "btn btn-info btn-large" }) <br /> <br />
+            @Html.ActionLink("Delete Answer", "DeleteAnswer", "Admin", new { @class = "btn btn-danger btn-large" }) <br />
+        </div>
+    </div>
+</div>
+<div class="row"></div>
+<br /><br /><br /><br /><br />
+<div class="col-md-3">
+    <div class="panel panel-primary text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title">Status</h3>
+        </div>
+        <div class="panel-body">
+            @Html.ActionLink("Status Index", "Add", "Catgory", null, new { @class = "btn btn-success btn-large" }) <br /> <br />
+            @Html.ActionLink("Add Status", "Add", "Catgory", null, new { @class = "btn btn-primary btn-large" }) <br /> <br />
+            @Html.ActionLink("Edit Status", "Add", "Catgory", null, new { @class = "btn btn-info btn-large" }) <br /> <br />
+            @Html.ActionLink("Delete Status", "Add", "Catgory", new { @class = "btn btn-danger btn-large" }) <br />
+        </div>
+    </div>
+</div>
+<div class="col-md-3 col-md-offset-1">
+    <div class="panel panel-primary text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title">Weight</h3>
+        </div>
+        <div class="panel-body">
+            @Html.ActionLink("Weight Index", "Add", "Catgory", null, new { @class = "btn btn-success btn-large" }) <br /> <br />
+            @Html.ActionLink("Add Weight", "Add", "Catgory", null, new { @class = "btn btn-primary btn-large" }) <br /> <br />
+            @Html.ActionLink("Edit Weight", "Add", "Catgory", null, new { @class = "btn btn-info btn-large" }) <br /> <br />
+            @Html.ActionLink("Delete Weight", "Add", "Catgory", new { @class = "btn btn-danger btn-large" }) <br />
+        </div>
+    </div>
+</div>
+<div class="col-md-3 col-md-offset-1">
+    <div class="panel panel-primary text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title">Multiplier</h3>
+        </div>
+        <div class="panel-body">
+            @Html.ActionLink("Multiplier Index", "Add", "Catgory", null, new { @class = "btn btn-success btn-large" }) <br /> <br />
+            @Html.ActionLink("Add Multiplier", "Add", "Catgory", null, new { @class = "btn btn-primary btn-large" }) <br /> <br />
+            @Html.ActionLink("Edit Multiplier", "Add", "Catgory", null, new { @class = "btn btn-info btn-large" }) <br /> <br />
+            @Html.ActionLink("Delete Multiplier", "Add", "Catgory", new { @class = "btn btn-danger btn-large" }) <br />
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("a[id^='approveBtn']").click(function (e) {
+            //$('#approveBtn').click(function (e) {
+                e.preventDefault();
+
+                var taskId = $(this).data("id");
+
+                if (confirm("Are you sure you want to Approve this task?")) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Admin/Approve",
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: JSON.stringify({ id: taskId }),
+                        success: function (data) {
+                            if (data.message == "Success") {
+                                window.location.href = data.Url;
+                            }
+                            else {
+                                alert("Something went wrong. Try again !");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert("Something went wrong. Try again !");
+                        }
+                    });
+                }
+            });
+
+            $("a[id^='rejectBtn']").click(function (e) {
+            //$('#rejectBtn').click(function (e) {
+                e.preventDefault();
+
+                var taskId = $(this).data("id");
+
+                if (confirm("Are you sure you want to Reject this task?")) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Admin/Reject",
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: JSON.stringify({ id: taskId }),
+                        success: function (data) {
+                            if (data.message == "Success") {
+                                window.location.href = data.Url;
+                            }
+                            else {
+                                alert("Something went wrong. Try again !");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert("Something went wrong. Try again !");
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+}

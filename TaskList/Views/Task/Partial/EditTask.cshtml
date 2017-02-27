@@ -1,0 +1,98 @@
+﻿@model TaskList.Models.TaskViewModel
+<div class="modal-body">
+    <br />
+    <div class="form-group">
+        <div class="alert alert-info" role="alert">
+            <div class="col-md-8 lead">
+                @Model.TaskName <span> - Edit</span>
+            </div>
+            <span class="lead">
+                Total Score:
+                <span id="totalScore"><strong>@Model.Score</strong></span>
+            </span>
+        </div>
+    </div>
+    @using (Html.BeginForm("Edit", "Task", FormMethod.Post, new { enctype = "multipart/form-data", id = "editTaskForm" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(model => model.TaskId)
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.TaskName, htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.EditorFor(model => model.TaskName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.TaskName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.TaskDescription, htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.TextAreaFor(model => model.TaskDescription)
+                </div>
+            </div>
+
+            @{
+        if (Model.Attachments.Count > 0)
+        {
+            @Html.Label("Attachments", new { @class = "control-label col-md-3" })
+
+                <ul class="col-md-9 list-unstyled" id="attachmentsList">
+                    @for (int i = 0; i < Model.Attachments.Count; i++)
+                    {
+                        var file = Model.Attachments[i];
+                        if (file.FileExtension == ".jpg" || file.FileExtension == ".png" || file.FileExtension == ".gif" || file.FileExtension == ".bmp")
+                        {
+                            <li>
+                                <a href="@Url.Content(file.FilePath)" target="_blank" data-attribute-id="@file.FileGuid"><img src="@Url.Content(file.FilePath) " alt="@file.FileName" height=" 100" width="100"></a>&nbsp;&nbsp;&nbsp;
+                                <button type="button" class="btn btn-sm btn-danger removeAttachmentBtn" id="removeAttachment_@file.FileGuid">Remove</button>
+                            </li>
+                            <br />
+                        }
+                        else
+                        {
+                            <li>
+                                <a href="@Url.Content(file.FilePath)" target="_blank" data-attribute-id="@file.FileGuid">@Url.Content(file.FilePath)</a> &nbsp;&nbsp;&nbsp;
+                                <button type="button" class="btn btn-sm btn-danger removeAttachmentBtn" id="removeAttachment_@file.FileGuid">Remove</button>
+                                <br />
+                            </li>
+                        }
+                        <br />
+                    }
+
+                </ul>
+                <div class="col-md-3">
+                </div>
+                <div class="col-md-9">
+                    <input type="file" id="files" name="files" multiple="multiple" title="Hold Ctrl and select multiple files, to upload multiple files" />
+                </div>
+        }
+        else
+        {
+            <div class="form-group">
+                @Html.Label("Attachments", new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    <input type="file" id="files" name="files" multiple="multiple" title="Hold Ctrl and select multiple files, to upload multiple files" />
+                </div>
+            </div>
+        }
+            }
+            <br /><br />
+            <div class="form-group">
+                <div class="col-md-12">
+                    <input type="submit" value="Save" class="btn btn-success" id="editTaskModal" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

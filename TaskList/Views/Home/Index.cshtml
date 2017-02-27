@@ -1,0 +1,216 @@
+﻿@model IPagedList<TaskList.Models.TaskViewModel>
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<h2>
+    Task List Manager
+</h2>
+<h2><span class="small">Prioritization tool to manage all your development tasks</span></h2>
+<br />
+<p>
+    @Html.ActionLink("Create New Task", "Create", "Task", null, new { @class = "btn btn-success" })
+</p>
+<br />
+<ul class="nav nav-pills" id="statusTab">
+    <li role="presentation" id="test">@Html.ActionLink("Pending", "Index", "Home", new { status = "Pending" }, new { id = "PendingBtn" })</li>
+    <li role="presentation">@Html.ActionLink("Approved", "Index", new { status = "Approved" }, new { id = "ApprovedBtn" })</li>
+    <li role="presentation">@Html.ActionLink("Not Approved", "Index", new { status = "NotApproved" }, new { id = "NotApprovedBtn" })</li>
+    <li role="presentation">@Html.ActionLink("All", "Index", new { status = "All" }, new { id = "AllBtn" })</li>
+</ul>
+<br />
+
+@{
+    string status = Request.QueryString["status"];
+    // Set Default status as Pending, if query string is null
+    if ((status == null) || (status == string.Empty))
+    {
+        status = "Pending";
+    }
+}
+
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    @*<div class="panel-heading">Development Task List</div>*@
+    <table class="table table-striped table-hover">
+
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().TaskName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().Score)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().Priority)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().StatusName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstOrDefault().DateCreated)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                if (item.StatusName == status)
+                {
+                    @GenerateTableRows(item);
+
+                }
+
+                if (status == "All")
+                {
+                    @GenerateTableRows(item);
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="pagedList">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { status = status, page }), PagedListRenderOptions.MinimalWithItemCountText)
+</div>
+
+<div id="modal-container" class="modal fade"
+     tabindex="-1" role="dialog">
+    <div class="modal-content">
+    </div>
+</div>
+
+@helper GenerateTableRows(TaskList.Models.TaskViewModel item)
+{
+    <tr>
+        <td>
+            @Html.ActionLink(@item.TaskName, "Details", "Task", new { id = item.TaskId }, new { @class = "modal-link" })
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Score)
+        </td>
+
+        <td>
+            @if (item.StatusName == "Pending")
+            {
+                @Html.DisplayFor(modelItem => item.Priority)
+            }
+            else
+            {
+                <label>-</label>
+            }
+        </td>
+
+        <td>
+            @Html.DisplayFor(modelItem => item.StatusName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DateCreated)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", "Task", new { id = item.TaskId }, new { @class = "modal-link btn btn-default info" })
+            @Html.ActionLink("Details", "Details", "TaskItemDetail", new { id = item.TaskId }, new { @class = "btn btn-default success" })
+            @Html.ActionLink("Delete", "Delete", "Task", new { id = item.TaskId }, new { @class = "modal-link btn btn-default danger" })
+        </td>
+    </tr>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setActiveTab();
+            modalDialogDetails();
+            clickHandlers();
+        });
+
+        function clickHandlers() {
+            $(document).on("click", "#taskItemDetailBtnModal", function (event) {
+                $('#modal-container').modal('hide');
+            });
+
+            $(document).on("click", "#deleteTaskModal", function (event) {
+                $('#modal-container').modal('hide');
+            });
+
+            $(document).on("click", "#editTaskModal", function (event) {
+                $('#modal-container').modal('hide');
+            });
+
+            $(document).on("click", ".removeAttachmentBtn", function (event) {
+                var removeElementDOM = $(this);
+                // Remove the attachment from the database
+                var fileGuidToDelete = $(this).prev().data("attribute-id");
+                if (confirm("Are you sure, you want to remove this attachment?")) {
+                    if (fileGuidToDelete) {
+                        // Ajax call to send data
+                        $.ajax({
+                            type: "POST",
+                            url: "/Task/DeleteFileByGuid",
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify({ 'fileGuidStr': fileGuidToDelete }),
+                            success: function (data) {
+                                if (data.message == "Success") {
+                                    // remove the attachment from the DOM and also the remove btn
+                                    removeElementDOM.prev().remove();
+                                    removeElementDOM.remove();
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                alert("Something went wrong. Try again !");
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function modalDialogDetails() {
+            $('body').on('click', '.modal-link', function (e) {
+                e.preventDefault();
+                $(this).attr('data-target', '#modal-container');
+                $(this).attr('data-toggle', 'modal');
+            });
+            // Attach listener to .modal-close-btn's so that when the button is pressed the modal dialog disappears
+            $('body').on('click', '.modal-close-btn', function () {
+                $('#modal-container').modal('hide');
+            });
+            //clear modal cache, so that new content can be loaded
+            $('#modal-container').on('hidden.bs.modal', function () {
+                $(this).removeData('bs.modal');
+            });
+            $('#CancelModal').on('click', function () {
+                return false;
+            });
+        }
+
+        function setActiveTab(Key) {
+
+            if (getQueryStringVal("status")) {
+                var status = getQueryStringVal("status");
+
+                //do your work here
+                var statusBtn = $("#" + status + "Btn");
+                $(statusBtn).parent().addClass('active').siblings().removeClass('active');
+            }
+        }
+
+        function getQueryStringVal(Key) {
+            var url = window.location.href;
+            KeysValues = url.split(/[\?&]+/);
+            if (KeysValues.length != 1) {
+                for (i = 0; i < KeysValues.length; i++) {
+                    KeyValue = KeysValues[i].split("=");
+                    if (KeyValue[0] == Key) {
+                        return KeyValue[1];
+                    }
+                }
+            }
+                // Default status is Pending
+            else {
+                return "Pending";
+            }
+        }
+    </script>
+}
